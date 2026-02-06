@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hari Traders | Store</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --text: #0f172a;
+            --accent: #10b981;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding-bottom: 100px;
+        }
+
+        /* Modern Header */
+        .header {
+            background: #ffffff;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .logo { font-size: 22px; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
+
+        .profile-trigger {
+            background: #f1f5f9;
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Search & Categories */
+        .sticky-controls {
+            background: #fff;
+            position: sticky;
+            top: 60px;
+            z-index: 999;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .search-box {
+            margin: 0 15px 10px;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        .controls-row {
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            gap: 10px;
+        }
+
+        .category-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .category-scroll::-webkit-scrollbar { display: none; }
+
+        .cat-pill {
+            padding: 8px 18px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 50px;
+            white-space: nowrap;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .cat-pill.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .view-toggle {
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .view-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Product Cards */
+        .brand-section { background: white; margin: 15px; border-radius: 16px; padding: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .brand-name { font-size: 18px; font-weight: 700; margin-bottom: 15px; color: var(--text); }
+        
+        .variant-grid { display: flex; overflow-x: auto; gap: 15px; padding-bottom: 5px; }
+        .variant-grid.list-view { flex-direction: column; overflow-x: visible; }
+        
+        .v-card { min-width: 140px ; text-align: center; }
+        .v-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 12px; background: #f1f5f9; }
+        .v-label { font-size: 14px; font-weight: 600; margin-top: 8px; height: 34px; overflow: hidden; }
+        .v-price { color: var(--accent); font-weight: 700; font-size: 15px; margin: 5px 0; }
+
+        /* List View Styles */
+        .variant-grid.list-view .v-card {
+            display: flex;
+            align-items: center;
+            text-align: left;
+            min-width: 100%;
+            gap: 15px;
+            padding: 10px;
+            border-radius: 12px;
+            background: #f8fafc;
+        }
+
+        .variant-grid.list-view .v-card img {
+            width: 80px;
+            height: 80px;
+            min-width: 80px;
+        }
+
+        .variant-grid.list-view .v-label {
+            flex: 1;
+            height: auto;
+            font-size: 15px;
+        }
+
+        .variant-grid.list-view .v-price {
+            margin: 0;
+        }
+
+        .variant-grid.list-view .qty-btns {
+            min-width: 110px;
+        }
+
+        .qty-btns {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .qty-btns button {
+            width: 28px; height: 28px; border: none; background: white; 
+            border-radius: 6px; font-weight: bold; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* Floating Cart */
+        .cart-fab {
+            position: fixed;
+            bottom: 25px;
+            left: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 16px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.4);
+            z-index: 1001;
+        }
+
+        /* Modals */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; padding: 20px; }
+        .modal-content { background: white; border-radius: 20px; padding: 20px; max-height: 80vh; overflow-y: auto; }
+        
+        .address-box {
+            border: 2px solid #e2e8f0;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .address-box.selected { border-color: var(--primary); background: #eff6ff; }
+        
+        .btn-action {
+            width: 100%; padding: 14px; border: none; border-radius: 12px; 
+            font-weight: 700; font-size: 16px; margin-top: 10px; cursor: pointer;
+        }
+        .input-group { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 10px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo">HARI TRADERS</div>
+        <div class="profile-trigger" onclick="openProfile()" id="userBtn">Login</div>
+    </div>
+
+    <div class="sticky-controls">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search snacks..." oninput="renderProducts()">
+        </div>
+        <div class="controls-row">
+            <div class="category-scroll">
+                <div class="cat-pill active" onclick="setCat('All', this)">All</div>
+                <div class="cat-pill" onclick="setCat('Namkeen', this)">Namkeen</div>
+                <div class="cat-pill" onclick="setCat('Fryums', this)">Fryums</div>
+                <div class="cat-pill" onclick="setCat('Bisciuits', this)">Biscuits</div>
+                <div class="cat-pill" onclick="setCat('Choclates', this)">Choclates</div>
+            </div>
+            <div class="view-toggle">
+                <button class="view-btn" id="viewBtn" onclick="toggleView()" title="Toggle View">⊞</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="productList"></div>
+
+    <div class="cart-fab" id="cartFab" style="display: none;" onclick="openCart()">
+        <span id="cartCount">0 Items</span>
+        <span id="cartTotal">₹0</span>
+    </div>
+
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <div id="profileBody"></div>
+            <button class="btn-action" style="background:#f1f5f9; color:#64748b" onclick="closeModals()">Close</button>
+        </div>
+    </div>
+
+    <div id="cartModal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-top:0">Order Summary</h2>
+            <div id="cartList"></div>
+            <div id="cartGrandTotal" style="font-size:20px; font-weight:800; margin:20px 0;"></div>
+            <button class="btn-action" style="background:var(--accent); color:white" onclick="sendToWhatsapp()">Confirm Order (WhatsApp)</button>
+            <button class="btn-action" style="background:#f1f5f9; color:#64748b" onclick="closeModals()">Back to Shop</button>
+        </div>
+    </div>
+
+    <script>
+        const WHATSAPP = "917415768041";
+        let cart = {};
+        let selectedCat = "All";
+        let viewMode = "grid";
+        let userData = JSON.parse(localStorage.getItem('ht_user')) || { name: "", addresses: [], selectedAddrIndex: 0 };
+
+        const products = [
+            { id: 1, name: "Yellow Diamond", category: "Namkeen", variants: [
+              
+                { vid: 1, label: "Aloo Bhujia", price: 50, image: "image1.jpg" },
+                { vid: 2, label: "Ratlami", price: 50, image: "image2.jpg" },
+                { vid: 3, label: "Tasty", price: 50, image: "image4.jpg" },
+                { vid: 4, label: "Mixture", price: 50, image: "image3.jpg" },
+                { vid: 5, label: "Falhari", price: 50, image: "image5.jpg" },
+                { vid: 6, label: "Gathiya", price: 50, image: "image6.jpg" },
+                { vid: 7, label: "Moong Dal", price: 50, image: "image7.jpg" },
+                { vid: 8, label: "Hing Chana", price: 50, image: "image8.jpg" },
+                { vid: 9, label: "Matar", price: 50, image: "image9.jpg" },
+                { vid: 10, label: "Classic Peanut", price: 50, image: "image10.jpg" },
+                { vid: 11, label: "Punjabi", price: 50, image: "image12.jpg" },
+                { vid: 12, label: "Khatta meetha", price: 50, image: "image11.jpg" },
+            ]},
+            { id: 2, name: "Shree Hari", category: "Fryums", variants: [
+                { vid: 1, label: "lal Katori", price: 50, image: " lal katori.png" },
+                { vid: 2, label: "pili katori", price: 50, image: "MASALA-VATKA.png" },
+                { vid: 3, label: "neeli katori", price: 50, image: "neelikatori.png" },
+                { vid: 4, label: "jeera papad", price: 50, image: "jeeraPAPAD.png" },
+                { vid: 5, label: "Masala papad", price: 50, image: "masala-papad.png" },
+                { vid: 6, label: "refil pipe", price: 50, image: " refil.png" },
+                { vid: 7, label: "masala ponga", price: 50, image: "masala-ponga.png" },
+                { vid: 8, label: "pasta blue", price: 50, image: "pasta.png" },
+                { vid: 9, label: "penne pasta", price: 50, image: "pennepasta.png" },
+                { vid: 10, label: "Abcd", price: 50, image: "Abcd.png" },
+                { vid: 11, label: "noodles", price: 50, image: "NOODLES.png" },
+                { vid: 12, label: "jali", price: 50, image: "CHORAS-JALI.png" },
+                { vid: 13, label: "wheels", price: 50, image: "MEGA-WHEELS.png" },
+                { vid: 14, label: "chokdi", price: 50, image: "CHOKDI.png" },
+                { vid: 15, label: "Gear ring", price: 50, image: "Gearring.jpg" },
+                { vid: 16, label: "Aeroplane", price: 50, image: "AERO-PLANE.png" },
+                ]}
+        ];
+
+        function setCat(cat, el) {
+            selectedCat = cat;
+            document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+            el.classList.add('active');
+            renderProducts();
+        }
+
+        function toggleView() {
+            viewMode = viewMode === 'grid' ? 'list' : 'grid';
+            document.getElementById('viewBtn').innerText = viewMode === 'grid' ? '⊞' : '☰';
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const query = document.getElementById("searchInput").value.toLowerCase();
+            let html = "";
+            
+            products.forEach(p => {
+                // Filter by category
+                if (selectedCat !== "All" && p.category !== selectedCat) return;
+                
+                // Filter variants that match the search query
+                let matchingVariants = p.variants.filter(v => {
+                    if (!query) return true;
+                    return v.label.toLowerCase().includes(query) || p.name.toLowerCase().includes(query);
+                });
+                
+                // Only show brand section if there are matching variants
+                if (matchingVariants.length > 0) {
+                    const gridClass = viewMode === 'list' ? 'variant-grid list-view' : 'variant-grid';
+                    html += `<div class="brand-section"><div class="brand-name">${p.name}</div><div class="${gridClass}">`;
+                    matchingVariants.forEach(v => {
+                        const key = p.id + "_" + v.vid;
+                        html += `<div class="v-card">
+                            <img src="${v.image}">
+                            <div class="v-label">${v.label}</div>
+                            <div class="v-price">₹${v.price}</div>
+                            <div class="qty-btns">
+                                <button onclick="updateQty(${p.id}, ${v.vid}, -1)">-</button>
+                                <span id="q_${key}">${cart[key] || 0}</span>
+                                <button onclick="updateQty(${p.id}, ${v.vid}, 1)">+</button>
+                            </div>
+                        </div>`;
+                    });
+                    html += `</div></div>`;
+                }
+            });
+            
+            document.getElementById("productList").innerHTML = html || "<p style='text-align:center; padding:50px;'>No items found</p>";
+        }
+
+        function updateQty(pid, vid, delta) {
+            const key = pid + "_" + vid;
+            cart[key] = Math.max(0, (cart[key] || 0) + delta);
+            if (cart[key] === 0) delete cart[key];
+            document.getElementById(`q_${key}`).innerText = cart[key] || 0;
+            updateCartFab();
+        }
+
+        function updateCartFab() {
+            let total = 0, count = 0;
+            for (let k in cart) {
+                const [pid, vid] = k.split("_").map(Number);
+                const p = products.find(x => x.id === pid);
+                const v = p.variants.find(x => x.vid === vid);
+                total += (cart[k] * v.price);
+                count += cart[k];
+            }
+            const fab = document.getElementById("cartFab");
+            if (count > 0) {
+                fab.style.display = "flex";
+                document.getElementById("cartCount").innerText = count + " Items";
+                document.getElementById("cartTotal").innerText = "₹" + total;
+            } else { fab.style.display = "none"; }
+        }
+
+        function openProfile() {
+            const body = document.getElementById("profileBody");
+            if (!userData.name) {
+                body.innerHTML = `<h3>Welcome</h3>
+                <input id="inName" class="input-group" placeholder="Full Name">
+                <button class="btn-action" style="background:var(--primary); color:white" onclick="saveUser()">Start Shopping</button>`;
+            } else {
+                let addrHtml = userData.addresses.map((a, i) => `
+                    <div class="address-box ${i === userData.selectedAddrIndex ? 'selected' : ''}" onclick="setAddr(${i})">
+                        <b>Address ${i+1}</b><br>${a}
+                    </div>`).join('');
+                body.innerHTML = `<h3>Profile</h3>
+                <p><b>Name:</b> ${userData.name}</p>
+                <h4>Your Saved Addresses</h4>
+                ${addrHtml}
+                <textarea id="newAddr" class="input-group" placeholder="Add new address..."></textarea>
+                <button class="btn-action" style="background:var(--primary); color:white" onclick="addAddress()">+ Add New Address</button>
+                <button class="btn-action" style="background:#fee2e2; color:#ef4444" onclick="logout()">Logout</button>`;
+            }
+            document.getElementById("profileModal").style.display = "block";
+        }
+
+        function saveUser() {
+            userData.name = document.getElementById("inName").value;
+            if(!userData.name) return alert("Please enter your name");
+            saveData(); openProfile();
+        }
+
+        function addAddress() {
+            const val = document.getElementById("newAddr").value;
+            if(val) { userData.addresses.push(val); saveData(); openProfile(); }
+        }
+
+        function setAddr(i) { userData.selectedAddrIndex = i; saveData(); openProfile(); }
+        function saveData() { localStorage.setItem('ht_user', JSON.stringify(userData)); updateUI(); }
+        function updateUI() { document.getElementById("userBtn").innerText = userData.name || "Login"; }
+        function logout() { localStorage.clear(); location.reload(); }
+        function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = "none"); }
+
+        function openCart() {
+            const list = document.getElementById("cartList");
+            let groups = {}, grand = 0;
+            for (let k in cart) {
+                const [pid, vid] = k.split("_").map(Number);
+                const p = products.find(x => x.id === pid);
+                const v = p.variants.find(x => x.vid === vid);
+                if (!groups[p.name]) groups[p.name] = { items: [], total: 0, qty: 0, p: v.price };
+                groups[p.name].items.push(`${v.label} (${cart[k]})`);
+                groups[p.name].total += (cart[k] * v.price);
+                groups[p.name].qty += cart[k];
+                grand += (cart[k] * v.price);
+            }
+            
+            let html = "";
+            for (let b in groups) {
+                html += `<div style="border-bottom:1px solid #f1f5f9; padding:10px 0;">
+                    <div style="font-weight:700;">${b} ${groups[b].qty} x ${groups[b].p} = ₹${groups[b].total}</div>
+                    <div style="font-size:13px; color:#64748b">${groups[b].items.join(', ')}</div>
+                </div>`;
+            }
+            list.innerHTML = html;
+            document.getElementById("cartGrandTotal").innerText = "Total: ₹" + grand;
+            document.getElementById("cartModal").style.display = "block";
+        }
+
+        function sendToWhatsapp() {
+            if (!userData.name || userData.addresses.length === 0) { alert("Please login and add address first"); return openProfile(); }
+            const addr = userData.addresses[userData.selectedAddrIndex];
+            let msg = `*ORDER FROM ${userData.name}*\n📍 ${addr}\n\n`;
+            let groups = {}, grand = 0;
+            
+            for (let k in cart) {
+                const [pid, vid] = k.split("_").map(Number);
+                const p = products.find(x => x.id === pid);
+                const v = p.variants.find(x => x.vid === vid);
+                if (!groups[p.name]) groups[p.name] = { items: [], total: 0, qty: 0, p: v.price };
+                groups[p.name].items.push(`${v.label} ${cart[k]}`);
+                groups[p.name].total += (cart[k] * v.price);
+                groups[p.name].qty += cart[k];
+                grand += (cart[k] * v.price);
+            }
+
+            for (let b in groups) {
+                msg += `*${b} ${groups[b].qty} x ${groups[b].p} = ₹${groups[b].total}*\n`;
+                groups[b].items.forEach(i => msg += i + "\n");
+                msg += `\n`;
+            }
+            msg += `*TOTAL BILL: ₹${grand}*`;
+            window.open(`https://wa.me/${WHATSAPP}?text=` + encodeURIComponent(msg));
+        }
+
+        updateUI();
+        renderProducts();
+    </script>
+</body>
+</html>
