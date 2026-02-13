@@ -444,6 +444,7 @@
 
     <script>
         const WHATSAPP = "917415768041";
+        const WHATSAPP2 ="919644158936";
         const MIN_ORDER_VALUE = 500;
         let cart = {};
         let selectedCat = "All";
@@ -1048,7 +1049,11 @@
             const order = { date: new Date().toLocaleDateString(), items: msg, total: finalTotal };
             userData.orderHistory.unshift(order);
             localStorage.setItem('ht_user', JSON.stringify(userData));
-            window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
+            
+window.location.href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
+setTimeout(() => {
+    window.open(`https://wa.me/${WHATSAPP2}?text=${encodeURIComponent(msg)}`, '_blank');
+}, 2000);
             cart = {};
             updateCartFab();
             closeModals();
