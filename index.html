@@ -1050,10 +1050,10 @@
             userData.orderHistory.unshift(order);
             localStorage.setItem('ht_user', JSON.stringify(userData));
             
-window.location.href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
-setTimeout(() => {
-    window.open(`https://wa.me/${WHATSAPP2}?text=${encodeURIComponent(msg)}`, '_blank');
-}, 2000);
+const url1 = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
+const url2 = `https://wa.me/${WHATSAPP2}?text=${encodeURIComponent(msg)}`;
+window.open(url1, '_blank');
+window.open(url2, '_blank');
             cart = {};
             updateCartFab();
             closeModals();
