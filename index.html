@@ -398,8 +398,7 @@
         </div>
         <div class="controls-row">
             <div class="category-scroll" id="catScroll">
-                <!-- Category pills are rendered dynamically from variant categories -->
-            </div>
+                </div>
             <div class="view-toggle">
                 <button class="view-btn" id="viewBtn" onclick="toggleView()" title="Toggle View">⊞</button>
             </div>
@@ -444,7 +443,6 @@
 
     <script>
         const WHATSAPP = "917415768041";
-        const WHATSAPP2 ="919644158936";
         const MIN_ORDER_VALUE = 500;
         let cart = {};
         let selectedCat = "All";
@@ -464,10 +462,6 @@
 
         // ============================================================
         // PRODUCT CATALOG
-        // ============================================================
-        // CATEGORY is now on each VARIANT individually (not the brand).
-        // This allows a brand like "Balaji" to have Namkeen + Fryums variants.
-        // active: false  → hides that product or variant from store
         // ============================================================
         const products = [
             {
@@ -493,7 +487,7 @@
                     { vid: 3,  label: "Tasty",           category: "Namkeen", price: 50, image: "image4.jpg",  available: true,  active: true },
                     { vid: 4,  label: "Mixture",         category: "Namkeen", price: 50, image: "image3.jpg",  available: true,  active: true },
                     { vid: 5,  label: "Falhari",         category: "Namkeen", price: 50, image: "image5.jpg",  available: true,  active: true },
-                    { vid: 6,  label: "Gathiya",         category: "Namkeen", price: 50, image: "image6.jpg.png",  available: true,  active: true },
+                    { vid: 6,  label: "Gathiya",         category: "Namkeen", price: 50, image: "image6.png",  available: true,  active: true },
                     { vid: 7,  label: "Moong Dal",       category: "Namkeen", price: 50, image: "image7.jpg",  available: true,  active: true },
                     { vid: 8,  label: "Hing Chana",      category: "Namkeen", price: 50, image: "image8.jpg",  available: true,  active: true },
                     { vid: 9,  label: "Matar",           category: "Namkeen", price: 50, image: "image9.jpg",  available: true,  active: true },
@@ -733,7 +727,6 @@
             renderProducts();
         }
 
-        // Tier pricing functions
         function calculateTierPrice(product, variant, quantity) {
             const basePrice = variant.price;
             if (!product.tierPricing || !product.tierPricing.enabled) return basePrice;
@@ -782,23 +775,16 @@
             products.forEach(p => {
                 if (p.active === false) return;
 
-                // Filter variants by: active, category (variant-level), search, availability
                 let matchingVariants = p.variants.filter(v => {
                     if (v.active === false) return false;
-
-                    // CATEGORY FILTER — now checked on variant, not brand
                     if (selectedCat !== "All" && v.category !== selectedCat) return false;
-
                     const matchesSearch = !query || v.label.toLowerCase().includes(query) || p.name.toLowerCase().includes(query);
                     if (!matchesSearch) return false;
-
                     if (filter === 'available'   && v.available === false) return false;
                     if (filter === 'unavailable' && v.available !== false) return false;
-
                     return true;
                 });
 
-                // Sort: available first
                 matchingVariants.sort((a, b) => {
                     const aA = a.available !== false, bA = b.available !== false;
                     if (aA && !bA) return -1;
@@ -817,7 +803,6 @@
                     const isPickupOnly = v.pickupOnly === true;
                     const cardClass = isAvailable ? 'v-card' : 'v-card unavailable';
                     const disabledAttr = isAvailable ? '' : 'disabled';
-                    // Show category tag only when viewing "All" (not needed when already filtered)
                     const showTag = selectedCat === "All" && v.category;
                     const catTagHTML = showTag ? `<div class="v-cat-tag">${v.category}</div>` : '';
 
@@ -1050,7 +1035,14 @@
             userData.orderHistory.unshift(order);
             localStorage.setItem('ht_user', JSON.stringify(userData));
             
-window.open(`https://wa.me/${WHATSAPP}?text=` + encodeURIComponent(msg));
+            // --- UPDATED WHATSAPP REDIRECT LOGIC ---
+            const waUrl = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
+            const win = window.open(waUrl, '_blank');
+            if (!win || win.closed || typeof win.closed == 'undefined') {
+                window.location.href = waUrl;
+            }
+            // ---------------------------------------
+
             cart = {};
             updateCartFab();
             closeModals();
@@ -1115,7 +1107,7 @@ window.open(`https://wa.me/${WHATSAPP}?text=` + encodeURIComponent(msg));
 
         if (userData.name) document.getElementById("userBtn").innerText = userData.name;
 
-        buildCategories(); // Build category pills from variant data
+        buildCategories();
         renderProducts();
     </script>
 </body>
