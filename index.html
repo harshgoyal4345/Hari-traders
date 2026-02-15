@@ -324,6 +324,7 @@
             font-weight: 700;
             box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.4);
             z-index: 1001;
+            cursor: pointer;
         }
         .mov-warning {
             background: #fef3c7;
@@ -352,6 +353,12 @@
             width: 100%; padding: 14px; border: none; border-radius: 12px;
             font-weight: 700; font-size: 16px; margin-top: 10px; cursor: pointer;
         }
+        .btn-logout {
+            width: 100%; padding: 14px; border: 1px solid #fca5a5; border-radius: 12px;
+            font-weight: 700; font-size: 16px; margin-top: 10px; cursor: pointer;
+            background: #fff1f2; color: #dc2626;
+        }
+        .btn-logout:active { background: #fee2e2; }
         .input-group { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 10px; box-sizing: border-box; }
 
         .order-history-item {
@@ -384,6 +391,25 @@
             color: #64748b;
             font-size: 14px;
         }
+
+        /* WhatsApp button */
+        .whatsapp-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+            background: #25D366;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            box-sizing: border-box;
+        }
+        .whatsapp-btn:active { background: #1ebe5d; }
     </style>
 </head>
 <body>
@@ -398,7 +424,8 @@
         </div>
         <div class="controls-row">
             <div class="category-scroll" id="catScroll">
-                </div>
+                <!-- Category pills are rendered dynamically from variant categories -->
+            </div>
             <div class="view-toggle">
                 <button class="view-btn" id="viewBtn" onclick="toggleView()" title="Toggle View">⊞</button>
             </div>
@@ -421,7 +448,10 @@
             <h2 style="margin-top:0">Order Summary</h2>
             <div id="cartList"></div>
             <div id="cartGrandTotal" style="font-size:20px; font-weight:800; margin:20px 0;"></div>
-            <button class="btn-action" style="background:var(--accent); color:white" onclick="sendToWhatsapp()">Confirm Order (WhatsApp)</button>
+            <!-- FIX: Use an <a> tag instead of window.open() to avoid popup blocker on GitHub Pages -->
+            <a id="whatsappLink" class="whatsapp-btn" href="#" target="_blank" onclick="return prepareWhatsappOrder(this)">
+                ✅ Confirm Order (WhatsApp)
+            </a>
             <button class="btn-action" style="background:#f1f5f9; color:#64748b" onclick="closeModals()">Back to Shop</button>
         </div>
     </div>
@@ -727,6 +757,7 @@
             renderProducts();
         }
 
+        // Tier pricing functions
         function calculateTierPrice(product, variant, quantity) {
             const basePrice = variant.price;
             if (!product.tierPricing || !product.tierPricing.enabled) return basePrice;
@@ -968,11 +999,19 @@
             document.getElementById("cartModal").style.display = "block";
         }
 
-        function sendToWhatsapp() {
+        // ============================================================
+        // FIX: WhatsApp order — build message and set href on the <a>
+        // Using an <a> tag with href avoids popup blockers on GitHub Pages.
+        // Returns false if validation fails (prevents navigation).
+        // ============================================================
+        function prepareWhatsappOrder(linkEl) {
             if (!userData.name || userData.addresses.length === 0) {
                 alert("Please set up your profile first");
-                closeModals(); openProfile(); return;
+                closeModals();
+                openProfile();
+                return false;
             }
+
             let deliverableTotal = 0;
             for (let k in cart) {
                 const [pid, vid] = k.split("_").map(Number);
@@ -982,8 +1021,10 @@
                 const priceInfo = getTierPricingInfo(p, v, qty);
                 if (!v.pickupOnly) deliverableTotal += qty * priceInfo.price;
             }
+
             if (deliverableTotal > 0 && deliverableTotal < MIN_ORDER_VALUE) {
-                alert(`Minimum order value for delivery is ₹${MIN_ORDER_VALUE}. Your deliverable items total is ₹${deliverableTotal}.`); return;
+                alert(`Minimum order value for delivery is ₹${MIN_ORDER_VALUE}. Your deliverable items total is ₹${deliverableTotal}.`);
+                return false;
             }
 
             let msg = `*New Order from ${userData.name}*\n\n*Address:*\n${userData.addresses[userData.selectedAddrIndex]}\n\n*Items:*\n`;
@@ -1031,21 +1072,22 @@
             }
             msg += `\n\n*Total: ₹${finalTotal}*`;
 
+            // Save to order history
             const order = { date: new Date().toLocaleDateString(), items: msg, total: finalTotal };
             userData.orderHistory.unshift(order);
             localStorage.setItem('ht_user', JSON.stringify(userData));
-            
-            // --- UPDATED WHATSAPP REDIRECT LOGIC ---
-            const waUrl = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
-            const win = window.open(waUrl, '_blank');
-            if (!win || win.closed || typeof win.closed == 'undefined') {
-                window.location.href = waUrl;
-            }
-            // ---------------------------------------
 
-            cart = {};
-            updateCartFab();
-            closeModals();
+            // Set the href on the anchor tag so the browser navigates naturally (no popup block)
+            linkEl.href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
+
+            // Clear cart and close modal after a short delay
+            setTimeout(() => {
+                cart = {};
+                updateCartFab();
+                closeModals();
+            }, 300);
+
+            return true; // allow the link navigation
         }
 
         function openProfile() {
@@ -1064,10 +1106,29 @@
                 });
                 html += `<input type="text" id="newAddress" class="input-group" placeholder="Add new address">
                     <button class="btn-action" style="background:var(--primary); color:white" onclick="addAddress()">Add Address</button>
-                    <button class="btn-action" style="background:var(--accent); color:white" onclick="viewOrderHistory()">View Order History</button>`;
+                    <button class="btn-action" style="background:var(--accent); color:white" onclick="viewOrderHistory()">View Order History</button>
+                    <button class="btn-logout" onclick="confirmLogout()">🚪 Logout</button>`;
             }
             document.getElementById("profileBody").innerHTML = html;
             document.getElementById("profileModal").style.display = "block";
+        }
+
+        // ============================================================
+        // FIX: Logout function — clears profile and resets UI
+        // ============================================================
+        function confirmLogout() {
+            const confirmed = confirm("Are you sure you want to logout? Your name and addresses will be removed.");
+            if (!confirmed) return;
+            logout();
+        }
+
+        function logout() {
+            userData = { name: "", addresses: [], selectedAddrIndex: 0, orderHistory: [] };
+            localStorage.removeItem('ht_user');
+            document.getElementById("userBtn").innerText = "Login";
+            cart = {};
+            updateCartFab();
+            closeModals();
         }
 
         function saveName() {
