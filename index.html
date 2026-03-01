@@ -392,6 +392,40 @@
             font-size: 14px;
         }
 
+
+        /* Cart modal quantity buttons */
+        .cart-qty-btns {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 3px 6px;
+            margin: 0 8px;
+        }
+        .cart-qty-btns button {
+            width: 26px; height: 26px;
+            border: none;
+            background: white;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            line-height: 1;
+        }
+        .cart-qty-btns button:active { background: #e2e8f0; }
+        .cart-qty-btns span {
+            min-width: 22px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 15px;
+        }
+        .cart-item-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
         /* WhatsApp button */
         .whatsapp-btn {
             display: block;
@@ -410,6 +444,158 @@
             box-sizing: border-box;
         }
         .whatsapp-btn:active { background: #1ebe5d; }
+
+
+        /* Lightbox cart summary */
+        .lb-cart-summary {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .lb-cart-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: rgba(255,255,255,0.85);
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+        .lb-cart-row:last-child { margin-bottom: 0; }
+        .lb-cart-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            font-size: 16px;
+            font-weight: 800;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 8px;
+            margin-top: 6px;
+        }
+        .lb-cart-total-amount { color: #10b981; font-size: 18px; }
+        .lb-cart-empty {
+            text-align: center;
+            color: rgba(255,255,255,0.35);
+            font-size: 13px;
+            padding: 4px 0;
+        }
+        .lb-item-count-badge {
+            background: #10b981;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 50px;
+            margin-left: 6px;
+        }
+        /* ===== IMAGE LIGHTBOX ===== */
+        #imgLightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.92);
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0;
+            touch-action: none;
+        }
+        #imgLightbox.active { display: flex; }
+        .lb-header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            box-sizing: border-box;
+            background: rgba(0,0,0,0.4);
+        }
+        .lb-title { color: white; font-size: 15px; font-weight: 700; flex: 1; text-align: center; }
+        .lb-price { color: #10b981; font-size: 15px; font-weight: 700; }
+        .lb-close { color: white; font-size: 26px; cursor: pointer; padding: 4px 8px; line-height: 1; }
+        .lb-img-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        .lb-img-wrap img {
+            max-width: 90%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+            transition: opacity 0.2s;
+            pointer-events: none;
+        }
+        .lb-nav-hint {
+            color: rgba(255,255,255,0.45);
+            font-size: 12px;
+            text-align: center;
+            padding: 6px;
+        }
+        .lb-dots {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            padding: 4px 0 2px;
+        }
+        .lb-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transition: background 0.2s;
+        }
+        .lb-dot.active { background: white; }
+        .lb-footer {
+            width: 100%;
+            background: rgba(0,0,0,0.5);
+            padding: 12px 16px 20px;
+            box-sizing: border-box;
+        }
+        .lb-qty-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+        .lb-qty-btn {
+            width: 44px; height: 44px;
+            border: none;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            font-size: 22px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .lb-qty-btn:active { background: #1d4ed8; }
+        .lb-qty-num {
+            color: white;
+            font-size: 26px;
+            font-weight: 800;
+            min-width: 40px;
+            text-align: center;
+        }
+        .lb-swipe-hint {
+            color: rgba(255,255,255,0.4);
+            font-size: 11px;
+            text-align: center;
+            margin-top: 4px;
+        }
+        .lb-variant-info {
+            text-align: center;
+            color: rgba(255,255,255,0.6);
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
     </style>
 </head>
 <body>
@@ -449,9 +635,9 @@
             <div id="cartList"></div>
             <div id="cartGrandTotal" style="font-size:20px; font-weight:800; margin:20px 0;"></div>
             <!-- FIX: Use an <a> tag instead of window.open() to avoid popup blocker on GitHub Pages -->
-            <a id="whatsappLink" class="whatsapp-btn" href="javascript:void(0)" target="_blank" onclick="prepareWhatsappOrder(event, this); return false;">
+            <button id="whatsappBtn" class="whatsapp-btn" onclick="prepareWhatsappOrder()">
                 ✅ Confirm Order (WhatsApp)
-            </a>
+            </button>
             <button class="btn-action" style="background:#f1f5f9; color:#64748b" onclick="closeModals()">Back to Shop</button>
         </div>
     </div>
@@ -463,7 +649,31 @@
         </div>
     </div>
 
-    <div id="filterOverlay" class="filter-overlay" onclick="closeFilterModal()"></div>
+    <!-- IMAGE LIGHTBOX -->
+    <div id="imgLightbox">
+        <div class="lb-header">
+            <span class="lb-close" onclick="closeLightbox()">✕</span>
+            <span class="lb-title" id="lbTitle"></span>
+            <span class="lb-price" id="lbPrice"></span>
+        </div>
+        <div class="lb-img-wrap" id="lbImgWrap">
+            <img id="lbImg" src="" alt="">
+        </div>
+        <div class="lb-dots" id="lbDots"></div>
+        <div class="lb-nav-hint" id="lbNavHint"></div>
+        <div class="lb-footer">
+            <div class="lb-cart-summary" id="lbCartSummary"></div>
+            <div class="lb-variant-info" id="lbVariantInfo"></div>
+            <div class="lb-qty-row">
+                <button class="lb-qty-btn" id="lbMinus" onclick="lbChangeQty(-1)">−</button>
+                <span class="lb-qty-num" id="lbQty">0</span>
+                <button class="lb-qty-btn" id="lbPlus" onclick="lbChangeQty(1)">+</button>
+            </div>
+            <div class="lb-swipe-hint">← Swipe left/right: change variant &nbsp;|&nbsp; Swipe up/down: change product</div>
+        </div>
+    </div>
+
+        <div id="filterOverlay" class="filter-overlay" onclick="closeFilterModal()"></div>
     <div id="filterModal" class="filter-modal">
         <h3 style="margin-top:0; margin-bottom:15px;">Filter Products</h3>
         <div class="filter-option selected" data-filter="all" onclick="selectFilter('all')">All Items</div>
@@ -840,7 +1050,7 @@
 
                     if (viewMode === 'list') {
                         html += `<div class="${cardClass}">
-                            <img src="${v.image}">
+                            <img src="${v.image}" onclick="openLightbox(${p.id}, ${v.vid})" style="cursor:pointer;">
                             <div class="v-info-section">
                                 ${catTagHTML}
                                 <div class="v-label">${v.label}</div>
@@ -869,7 +1079,7 @@
 
                         html += `<div class="${cardClass}">
                             ${badgesHTML}
-                            <img src="${v.image}">
+                            <img src="${v.image}" onclick="openLightbox(${p.id}, ${v.vid})" style="cursor:pointer;">
                             ${catTagHTML}
                             <div class="v-label">${v.label}</div>
                             <div class="v-price">₹${v.price}</div>
@@ -926,12 +1136,16 @@
 
         function openCart() {
             if (Object.keys(cart).length === 0) return;
+            refreshCartModal();
+            document.getElementById('cartModal').style.display = 'block';
+        }
 
-            let html = "", total = 0, deliverableTotal = 0, pickupTotal = 0, totalSavings = 0;
+        function refreshCartModal() {
+            let html = '', total = 0, deliverableTotal = 0, pickupTotal = 0, totalSavings = 0;
             const brandGroups = {};
 
             for (let k in cart) {
-                const [pid, vid] = k.split("_").map(Number);
+                const [pid, vid] = k.split('_').map(Number);
                 const p = products.find(x => x.id === pid);
                 const v = p.variants.find(x => x.vid === vid);
                 const qty = cart[k];
@@ -941,48 +1155,38 @@
                 total += itemTotal;
                 if (v.pickupOnly) pickupTotal += itemTotal; else deliverableTotal += itemTotal;
                 if (!brandGroups[pid]) brandGroups[pid] = { brandName: p.name, items: [] };
-                brandGroups[pid].items.push({ label: v.label, price: priceInfo.price, originalPrice: v.price, hasTier: priceInfo.hasTier, qty, itemTotal, pickupOnly: v.pickupOnly });
+                brandGroups[pid].items.push({ pid, vid, label: v.label, price: priceInfo.price, originalPrice: v.price, hasTier: priceInfo.hasTier, qty, itemTotal, pickupOnly: v.pickupOnly });
             }
 
             for (let pid in brandGroups) {
                 const group = brandGroups[pid];
-                const prices = [...new Set(group.items.map(i => i.price))];
-                if (prices.length > 1) {
-                    group.items.forEach(item => {
-                        html += `<div class="cart-item">
-                            <div class="cart-item-name">${group.brandName} - ${item.label}</div>
-                            <div class="cart-item-details">
-                                <span>${item.qty} × ₹${item.price}${item.hasTier ? ` <s style="color:#94a3b8;">₹${item.originalPrice}</s>` : ''}</span>
-                                <span style="font-weight:600; color:var(--accent)">₹${item.itemTotal}</span>
-                            </div>
-                            ${item.pickupOnly ? '<div style="font-size:12px; color:#f59e0b; margin-top:4px;">⚠ Pickup Only</div>' : ''}
-                        </div>`;
-                    });
-                } else {
-                    const totalQty = group.items.reduce((s, i) => s + i.qty, 0);
-                    const totalAmount = group.items.reduce((s, i) => s + i.itemTotal, 0);
-                    const variantList = group.items.map(i => `${i.label} (${i.qty})`).join(', ');
-                    html += `<div class="cart-item">
-                        <div class="cart-item-name">${group.brandName}</div>
-                        <div style="font-size:12px; color:#64748b; margin-top:2px; margin-bottom:4px;">${variantList}</div>
-                        <div class="cart-item-details">
-                            <span>${totalQty} × ₹${prices[0]}${group.items[0].hasTier ? ` <s style="color:#94a3b8;">₹${group.items[0].originalPrice}</s>` : ''}</span>
-                            <span style="font-weight:600; color:var(--accent)">₹${totalAmount}</span>
-                        </div>
-                        ${group.items[0].pickupOnly ? '<div style="font-size:12px; color:#f59e0b; margin-top:4px;">⚠ Pickup Only</div>' : ''}
-                    </div>`;
-                }
+                html += '<div class="cart-item">';
+                html += '<div class="cart-item-name">' + group.brandName + '</div>';
+                group.items.forEach(item => {
+                    html += '<div class="cart-item-details" style="margin-top:8px;">' +
+                        '<span style="flex:1; font-size:13px; color:#475569;">' + item.label +
+                        ' · ₹' + item.price + (item.hasTier ? ' <s style="color:#94a3b8;">₹' + item.originalPrice + '</s>' : '') + '</span>' +
+                        '<div class="cart-qty-btns">' +
+                            '<button onclick="cartUpdateQty(' + item.pid + ',' + item.vid + ',-1)">−</button>' +
+                            '<span id="cq_' + item.pid + '_' + item.vid + '">' + item.qty + '</span>' +
+                            '<button onclick="cartUpdateQty(' + item.pid + ',' + item.vid + ',1)">+</button>' +
+                        '</div>' +
+                        '<span style="font-weight:700; color:var(--accent); min-width:52px; text-align:right;">₹' + item.itemTotal + '</span>' +
+                        '</div>';
+                    if (item.pickupOnly) html += '<div style="font-size:11px; color:#f59e0b;">⚠ Pickup Only</div>';
+                });
+                html += '</div>';
             }
 
-            document.getElementById("cartList").innerHTML = html;
+            document.getElementById('cartList').innerHTML = html;
 
-            let summaryHTML = `<div style="border-top:2px solid #e2e8f0; padding-top:15px;">`;
-            if (pickupTotal > 0) summaryHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>Pickup Items:</span><span>₹${pickupTotal}</span></div>`;
+            let summaryHTML = '<div style="border-top:2px solid #e2e8f0; padding-top:15px;">';
+            if (pickupTotal > 0) summaryHTML += '<div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>Pickup Items:</span><span>₹' + pickupTotal + '</span></div>';
             if (deliverableTotal > 0) {
-                summaryHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>Delivery Items:</span><span>₹${deliverableTotal}</span></div>`;
-                if (deliverableTotal < MIN_ORDER_VALUE) summaryHTML += `<div class="mov-warning">Minimum order value for delivery: ₹${MIN_ORDER_VALUE}</div>`;
+                summaryHTML += '<div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>Delivery Items:</span><span>₹' + deliverableTotal + '</span></div>';
+                if (deliverableTotal < MIN_ORDER_VALUE) summaryHTML += '<div class="mov-warning">Minimum order value for delivery: ₹' + MIN_ORDER_VALUE + '</div>';
             }
-            if (totalSavings > 0) summaryHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:8px; color:#10b981;"><span>🎉 Tier Discount Savings:</span><span>-₹${totalSavings}</span></div>`;
+            if (totalSavings > 0) summaryHTML += '<div style="display:flex; justify-content:space-between; margin-bottom:8px; color:#10b981;"><span>🎉 Tier Discount Savings:</span><span>-₹' + totalSavings + '</span></div>';
 
             let finalTotal = total, globalDiscount = 0;
             if (globalTierPricing.enabled) {
@@ -991,22 +1195,38 @@
                 if (applicableTier.discount > 0) {
                     globalDiscount = Math.round(total * applicableTier.discount / 100);
                     finalTotal = total - globalDiscount;
-                    summaryHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>Subtotal:</span><span>₹${total}</span></div>`;
-                    summaryHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:8px; color:#10b981;"><span>🎊 Order Discount (${applicableTier.discount}%):</span><span>-₹${globalDiscount}</span></div>`;
+                    summaryHTML += '<div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>Subtotal:</span><span>₹' + total + '</span></div>';
+                    summaryHTML += '<div style="display:flex; justify-content:space-between; margin-bottom:8px; color:#10b981;"><span>🎊 Order Discount (' + applicableTier.discount + '%):</span><span>-₹' + globalDiscount + '</span></div>';
                 }
             }
-            summaryHTML += `<div style="display:flex; justify-content:space-between; font-size:20px; font-weight:800; margin-top:10px;"><span>Total:</span><span style="color:var(--accent)">₹${finalTotal}</span></div></div>`;
-            document.getElementById("cartGrandTotal").innerHTML = summaryHTML;
-            document.getElementById("cartModal").style.display = "block";
+            summaryHTML += '<div style="display:flex; justify-content:space-between; font-size:20px; font-weight:800; margin-top:10px;"><span>Total:</span><span style="color:var(--accent)">₹' + finalTotal + '</span></div></div>';
+            document.getElementById('cartGrandTotal').innerHTML = summaryHTML;
+
+            // If cart is now empty, close modal
+            if (Object.keys(cart).length === 0) {
+                closeModals();
+                updateCartFab();
+            }
         }
+
+        function cartUpdateQty(pid, vid, delta) {
+            const key = pid + '_' + vid;
+            cart[key] = Math.max(0, (cart[key] || 0) + delta);
+            if (cart[key] === 0) delete cart[key];
+            // Sync main product list qty display
+            const el = document.getElementById('q_' + key);
+            if (el) el.textContent = cart[key] || 0;
+            updateCartFab();
+            refreshCartModal();
+        }
+
 
         // ============================================================
         // FIX: WhatsApp order — build message and set href on the <a>
         // Using an <a> tag with href avoids popup blockers on GitHub Pages.
         // Returns false if validation fails (prevents navigation).
         // ============================================================
-        function prepareWhatsappOrder(event, linkEl) {
-            event.preventDefault();
+        function prepareWhatsappOrder() {
             if (!userData.name || userData.addresses.length === 0) {
                 alert("Please set up your profile first");
                 closeModals();
@@ -1079,10 +1299,9 @@
             userData.orderHistory.unshift(order);
             localStorage.setItem('ht_user', JSON.stringify(userData));
 
-            // Open WhatsApp directly — avoids popup blockers and page refresh on mobile
+            // Open WhatsApp - using location.href for maximum mobile compatibility
             const waUrl = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
-            linkEl.href = waUrl;
-            window.open(waUrl, '_blank');
+            window.location.href = waUrl;
 
             // Clear cart and close modal after a short delay
             setTimeout(() => {
@@ -1166,6 +1385,160 @@
             document.getElementById('filterBtn').classList.toggle('active', filter !== 'all');
             renderProducts();
             closeFilterModal();
+        }
+
+
+        // ============================================================
+        // IMAGE LIGHTBOX WITH SWIPE & QUANTITY MANAGER
+        // ============================================================
+        let lbPid = null, lbVid = null;
+        let lbAllVariants = []; // [{pid, vid, v, p}] flat list for swipe
+        let lbVariants = [];    // variants of current product
+        let lbVariantIdx = 0;
+        let lbProductIdx = 0;
+        let lbProducts = [];    // unique product list in display order
+
+        // Touch tracking
+        let lbTouchStartX = 0, lbTouchStartY = 0;
+
+        function openLightbox(pid, vid) {
+            // Build flat ordered list of active+available products & variants
+            lbProducts = [];
+            products.forEach(p => {
+                if (p.active === false) return;
+                const vs = p.variants.filter(v => v.active !== false);
+                if (vs.length > 0) lbProducts.push({p, vs});
+            });
+
+            lbProductIdx = lbProducts.findIndex(x => x.p.id === pid);
+            if (lbProductIdx < 0) lbProductIdx = 0;
+            lbVariants = lbProducts[lbProductIdx].vs;
+            lbVariantIdx = lbVariants.findIndex(v => v.vid === vid);
+            if (lbVariantIdx < 0) lbVariantIdx = 0;
+
+            lbPid = pid;
+            lbVid = vid;
+            lbRender();
+            document.getElementById('imgLightbox').classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Touch events
+            const wrap = document.getElementById('lbImgWrap');
+            wrap.ontouchstart = lbTouchStart;
+            wrap.ontouchend = lbTouchEnd;
+        }
+
+        function lbRender() {
+            const pObj = lbProducts[lbProductIdx];
+            const p = pObj.p;
+            lbVariants = pObj.vs;
+            const v = lbVariants[lbVariantIdx];
+            lbPid = p.id;
+            lbVid = v.vid;
+
+            document.getElementById('lbTitle').textContent = p.name + ' - ' + v.label;
+            document.getElementById('lbPrice').textContent = '₹' + v.price;
+
+            const img = document.getElementById('lbImg');
+            img.style.opacity = '0';
+            img.src = v.image;
+            img.onload = () => { img.style.opacity = '1'; };
+            img.onerror = () => { img.style.opacity = '1'; };
+
+            // Qty
+            const key = lbPid + '_' + lbVid;
+            const qty = cart[key] || 0;
+            document.getElementById('lbQty').textContent = qty;
+            document.getElementById('lbMinus').disabled = !v.available || qty === 0;
+            document.getElementById('lbPlus').disabled = !v.available;
+
+            // Dots (variants of current product)
+            let dotsHtml = '';
+            lbVariants.forEach((vv, i) => {
+                dotsHtml += '<div class="lb-dot' + (i === lbVariantIdx ? ' active' : '') + '"></div>';
+            });
+            document.getElementById('lbDots').innerHTML = dotsHtml;
+
+            // Variant & product info
+            document.getElementById('lbVariantInfo').textContent =
+                'Variant ' + (lbVariantIdx+1) + ' of ' + lbVariants.length +
+                ' | Product ' + (lbProductIdx+1) + ' of ' + lbProducts.length;
+
+            if (!v.available) {
+                document.getElementById('lbVariantInfo').textContent += ' · Out of Stock';
+            }
+
+            // Cart budget display
+            let grandTotal = 0, totalItems = 0;
+            Object.keys(cart).forEach(k => {
+                const [cpid, cvid] = k.split('_').map(Number);
+                const cp = products.find(x => x.id === cpid);
+                const cv = cp.variants.find(x => x.vid === cvid);
+                const cqty = cart[k];
+                const priceInfo = getTierPricingInfo(cp, cv, cqty);
+                grandTotal += cqty * priceInfo.price;
+                totalItems += cqty;
+            });
+            if (globalTierPricing.enabled) {
+                let applicableTier = globalTierPricing.tiers[0];
+                for (let tier of globalTierPricing.tiers) { if (grandTotal >= tier.minTotal) applicableTier = tier; }
+                if (applicableTier.discount > 0) grandTotal -= Math.round(grandTotal * applicableTier.discount / 100);
+            }
+            const summaryHtml = totalItems === 0
+                ? '<div class="lb-cart-empty">🛒 Cart is empty</div>'
+                : '<div class="lb-cart-total"><span>🛒 Budget <span class="lb-item-count-badge">' + totalItems + ' items</span></span><span class="lb-cart-total-amount">₹' + grandTotal + '</span></div>';
+            document.getElementById('lbCartSummary').innerHTML = summaryHtml;
+        }
+
+        function closeLightbox() {
+            document.getElementById('imgLightbox').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function lbChangeQty(delta) {
+            const v = lbVariants[lbVariantIdx];
+            if (!v.available) return;
+            const key = lbPid + '_' + lbVid;
+            cart[key] = Math.max(0, (cart[key] || 0) + delta);
+            if (cart[key] === 0) delete cart[key];
+            // Update main card qty if visible
+            const el = document.getElementById('q_' + key);
+            if (el) el.textContent = cart[key] || 0;
+            updateCartFab();
+            lbRender();
+        }
+
+        function lbTouchStart(e) {
+            lbTouchStartX = e.changedTouches[0].clientX;
+            lbTouchStartY = e.changedTouches[0].clientY;
+        }
+
+        function lbTouchEnd(e) {
+            const dx = e.changedTouches[0].clientX - lbTouchStartX;
+            const dy = e.changedTouches[0].clientY - lbTouchStartY;
+            const minSwipe = 40;
+            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > minSwipe) {
+                // Horizontal swipe = change variant
+                if (dx < 0) {
+                    // Swipe left = next variant
+                    lbVariantIdx = (lbVariantIdx + 1) % lbVariants.length;
+                } else {
+                    // Swipe right = prev variant
+                    lbVariantIdx = (lbVariantIdx - 1 + lbVariants.length) % lbVariants.length;
+                }
+                lbRender();
+            } else if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > minSwipe) {
+                // Vertical swipe = change product
+                if (dy < 0) {
+                    // Swipe up = next product
+                    lbProductIdx = (lbProductIdx + 1) % lbProducts.length;
+                } else {
+                    // Swipe down = prev product
+                    lbProductIdx = (lbProductIdx - 1 + lbProducts.length) % lbProducts.length;
+                }
+                lbVariantIdx = 0;
+                lbRender();
+            }
         }
 
         if (userData.name) document.getElementById("userBtn").innerText = userData.name;
