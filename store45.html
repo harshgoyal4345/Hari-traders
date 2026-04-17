@@ -642,6 +642,8 @@ function prepareOrder(){
     items:orderItems,total,disc
   });
   localStorage.setItem('ht_orders',JSON.stringify(ordersArr));
+  // Push to Supabase so admin sees it live
+  pushOrderToSupabase(ordersArr[ordersArr.length-1]);
   // Save to order history
   userData.orderHistory=userData.orderHistory||[];
   userData.orderHistory.unshift({
@@ -735,10 +737,57 @@ function lbChangeQty(delta){
 }
 
 // ════════════════════════════════════════════════════════════
-// BOOT
+// BOOT — Supabase Live Sync
 // ════════════════════════════════════════════════════════════
 function toast(m,ms){ms=ms||2000;const t=document.getElementById('storeToast');if(!t)return;t.textContent=m;t.style.opacity='1';setTimeout(()=>t.style.opacity='0',ms);}
-initStore();buildCategories();renderProducts();
+
+const SB_URL='https://gjuluuwdhjpmvwfmrpeg.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqdWx1dXdkaGpwbXZ3Zm1ycGVnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTMzMTMyMCwiZXhwIjoyMDkwOTA3MzIwfQ.5wNRsJTK55psjF-0lQ_MfyGVQaO-uHKhM1jmgyGO2Hk';
+function sbH(){return{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};}
+
+async function loadFromSupabase(){
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/store_data?id=eq.main&select=data',{headers:sbH()});
+    if(r.ok){
+      const rows=await r.json();
+      if(rows&&rows.length){
+        const d=rows[0].data||{};
+        if(d.products){
+          products=d.products;
+          localStorage.setItem('ht_products',JSON.stringify(products));
+          const sm=d.stock||{};
+          products.forEach(function(p){
+            p.variants.forEach(function(v){
+              const s=sm[p.id+'_'+v.vid];
+              if(s!==undefined)v.available=(s!==0);
+            });
+          });
+        }
+        if(d.settings){settings=d.settings;localStorage.setItem('ht_settings',JSON.stringify(settings));}
+        if(d.stock){stockMap=d.stock;localStorage.setItem('ht_stock',JSON.stringify(stockMap));}
+      }
+    }
+  }catch(e){/* offline — localStorage fallback */}
+  buildCategories();renderProducts();
+  let total=0;
+  products.forEach(function(p){if(p.active!==false)p.variants.forEach(function(v){if(v.active!==false)total++;});});
+  const hbn=document.getElementById('heroBadgeNum');
+  if(hbn)hbn.textContent=total;
+}
+
+async function pushOrderToSupabase(orderObj){
+  try{
+    await fetch(SB_URL+'/rest/v1/orders',{
+      method:'POST',
+      headers:Object.assign({},sbH(),{'Prefer':'return=minimal'}),
+      body:JSON.stringify({id:orderObj.id,data:orderObj,status:'new'})
+    });
+  }catch(e){}
+}
+
+initStore();
+loadFromSupabase();
+
 </script>
 </body>
 </html>
