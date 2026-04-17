@@ -235,9 +235,10 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--cr);color:var(-
 <div id="pg-bills" class="pg">
   <div class="pghdr">
     <div><div class="pgtitle">Bills</div><div class="pgsub" id="billSub">Today's activity</div></div>
-    <div style="text-align:right">
+    <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px">
       <div style="font-size:15px;font-weight:900;color:var(--g)" id="todaySales">₹0</div>
       <div style="font-size:10px;color:#16a34a;font-weight:700" id="todayProfit">₹0 profit</div>
+      <button onclick="clearAllBills()" style="font-size:10px;font-weight:700;padding:3px 8px;border:1px solid #fca5a5;border-radius:6px;background:#fff1f2;color:var(--rd);cursor:pointer;font-family:inherit">🗑 Clear All</button>
     </div>
   </div>
   <div class="btabs">
@@ -282,19 +283,13 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--cr);color:var(-
     <button class="btn btng btnf" onclick="saveStoreSettings()">💾 Save Store Settings</button>
   </div></div>
   <div class="ss"><div class="sst">🗄 Data Source</div><div class="ssb">
-    <div class="ds-opt sel" id="ds-local" onclick="selDS('local')"><div class="ds-radio"></div><div><div class="ds-lbl">💾 Local Storage</div><div class="ds-desc">Browser only. No internet needed. Data stays on this device.</div></div></div>
-    <div class="ds-opt" id="ds-github" onclick="selDS('github')"><div class="ds-radio"></div><div><div class="ds-lbl">🐙 GitHub JSON File</div><div class="ds-desc">Free. Sync across devices via GitHub API.</div></div></div>
-    <div class="ds-opt" id="ds-gsheets" onclick="selDS('gsheets')"><div class="ds-radio"></div><div><div class="ds-lbl">📊 Google Sheets</div><div class="ds-desc">Free. Via Apps Script web app.</div></div></div>
-    <div id="ds-github-cfg" style="display:none;margin-top:10px">
-      <label class="fl">GitHub Username</label><input class="fi" id="ghUser" placeholder="yourusername"/>
-      <label class="fl">Repo Name</label><input class="fi" id="ghRepo" placeholder="hari-traders-data"/>
-      <label class="fl">Personal Access Token</label><input class="fi" id="ghToken" type="password" placeholder="ghp_…"/>
-      <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:9px;padding:9px 11px;font-size:11px;color:#92400e;margin-bottom:9px">⚠️ Token stored locally. Keep admin.html private — do not share publicly.</div>
+    <div class="ds-opt sel" id="ds-local" onclick="selDS('local')"><div class="ds-radio"></div><div><div class="ds-lbl">💾 Local Storage Only</div><div class="ds-desc">Data stays in this browser. No sync across devices.</div></div></div>
+    <div class="ds-opt" id="ds-supabase" onclick="selDS('supabase')"><div class="ds-radio"></div><div><div class="ds-lbl">☁️ Supabase (Live Sync)</div><div class="ds-desc">Real-time sync. Admin changes appear in store instantly.</div></div></div>
+    <div id="ds-supabase-cfg" style="display:none;margin-top:10px;background:rgba(26,92,58,.05);border-radius:10px;padding:11px">
+      <div style="font-size:12px;font-weight:700;color:var(--g);margin-bottom:8px">✅ Supabase is configured and ready</div>
+      <div style="font-size:11px;color:var(--mu);line-height:1.7">Project: <b>gjuluwdhjpmvwfmrpeg</b><br>Tap ⟳ Sync in header to push all data to Supabase now.<br>Store.html pulls fresh data automatically on every load.</div>
     </div>
-    <div id="ds-gsheets-cfg" style="display:none;margin-top:10px">
-      <label class="fl">Apps Script Web App URL</label><input class="fi" id="gsURL" placeholder="https://script.google.com/macros/s/…/exec"/>
-    </div>
-    <button class="btn btng btnf" onclick="saveDataSource()">💾 Save Data Source</button>
+    <button class="btn btng btnf" onclick="saveDataSource()" style="margin-top:8px">💾 Save Data Source</button>
   </div></div>
   <div class="ss"><div class="sst">🆓 Free Live Hosting (GitHub Pages)</div><div class="ssb">
     <div style="background:rgba(26,92,58,.07);border-radius:9px;padding:9px 11px;margin-bottom:11px;font-size:12px;color:var(--g);font-weight:700">✅ 100% Free · No credit card · ~5 min</div>
@@ -435,6 +430,47 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--cr);color:var(-
 <div class="toast" id="toast"></div>
 
 <script>
+// ═══ SUPABASE CONFIG ════════════════════════════════════════
+const SUPA_URL='https://gjuluwdhjpmvwfmrpeg.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqdWx1dXdkaGpwbXZ3Zm1ycGVnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTMzMTMyMCwiZXhwIjoyMDkwOTA3MzIwfQ.5wNRsJTK55psjF-0lQ_MfyGVQaO-uHKhM1jmgyGO2Hk';
+const SUPA_HDR={'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'};
+
+async function supaGet(key){
+  try{
+    const r=await fetch(SUPA_URL+'/rest/v1/ht_data?key=eq.'+key+'&select=value',{headers:SUPA_HDR});
+    if(!r.ok) return null;
+    const d=await r.json();
+    return d&&d.length?d[0].value:null;
+  }catch(e){return null;}
+}
+async function supaSet(key,value){
+  try{
+    const r=await fetch(SUPA_URL+'/rest/v1/ht_data',{method:'POST',headers:SUPA_HDR,
+      body:JSON.stringify({key:key,value:value,updated_at:new Date().toISOString()})});
+    return r.ok;
+  }catch(e){return false;}
+}
+async function supaPushAll(){
+  const ok=await Promise.all([
+    supaSet('products',products),
+    supaSet('settings',settings),
+    supaSet('stock',stockMap),
+    supaSet('bills',bills),
+    supaSet('orders',orders)
+  ]);
+  return ok.every(Boolean);
+}
+async function supaPullAll(){
+  const [prods,sett,stk,bls,ords]=await Promise.all([
+    supaGet('products'),supaGet('settings'),supaGet('stock'),supaGet('bills'),supaGet('orders')
+  ]);
+  if(prods){products=prods;SP();}
+  if(sett){settings=sett;SS();}
+  if(stk){stockMap=stk;SSK();}
+  if(bls){bills=bls;SB();}
+  if(ords){orders=ords;SO();}
+}
+
 // ═══ DEFAULT DATA ════════════════════════════════════════════
 const DP=[
 {id:1,name:"Yellow Diamond",active:true,icon:"🟡",tierPricing:{enabled:true,brandTiers:[{minQty:0,discount:0},{minQty:20,discount:2},{minQty:50,discount:4}]},variants:[
@@ -543,7 +579,13 @@ const DP=[
 {vid:3,label:"vimal 40",category:"Pan Masala",price:440,costPrice:385,image:"vimal 40.jpg",available:false,pickupOnly:true,active:true,lowStockAlert:3}
 ]}
 ];
-const DS={storeName:"Hari Traders",whatsapp:"917415768041",minOrderValue:500,dataSource:"local",githubUser:"",githubRepo:"",githubToken:"",gsheetsUrl:"",globalTierPricing:{enabled:false,tiers:[{minTotal:0,discount:0},{minTotal:1000,discount:5},{minTotal:2000,discount:10},{minTotal:5000,discount:15}]}};
+const DS={storeName:"Hari Traders",whatsapp:"917415768041",minOrderValue:500,dataSource:"supabase",globalTierPricing:{enabled:false,tiers:[{minTotal:0,discount:0},{minTotal:1000,discount:5},{minTotal:2000,discount:10},{minTotal:5000,discount:15}]}};
+
+// ═══ SUPABASE CONFIG ════════════════════════════════════════
+const SB_URL='https://gjuluuwdhjpmvwfmrpeg.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqdWx1dXdkaGpwbXZ3Zm1ycGVnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTMzMTMyMCwiZXhwIjoyMDkwOTA3MzIwfQ.5wNRsJTK55psjF-0lQ_MfyGVQaO-uHKhM1jmgyGO2Hk';
+function sbH(){return{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'};}
+function sbHMin(){return{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};}
 
 // ═══ STATE ═══════════════════════════════════════════════════
 let products=[],settings={},stockMap={},bills=[],orders=[];
@@ -575,7 +617,7 @@ function loadAll(){
 
 function updateSyncStatus(){
   const ds=settings.dataSource||'local';
-  const map={local:['#4ade80','local'],github:['#f59e0b','GitHub'],gsheets:['#60a5fa','Sheets']};
+  const map={local:['#94a3b8','local'],supabase:['#4ade80','Supabase ☁️']};
   const arr=map[ds]||map.local;
   document.getElementById('sdot').style.background=arr[0];
   document.getElementById('slbl').textContent=arr[1];
@@ -589,61 +631,58 @@ function toast(m,ms){
 
 // ═══ SYNC ════════════════════════════════════════════════════
 async function syncNow(){
-  const ds=settings.dataSource||'local';
-  if(ds==='local'){toast('Using localStorage');return;}
-  if(ds==='github') await syncGH();
-  if(ds==='gsheets') await syncGS();
+  toast('⟳ Syncing with Supabase…');
+  await pushToSupabase();
+  await pullFromSupabase();
+  updateSyncStatus();
+  toast('✅ Synced');
 }
-async function syncGH(){
-  const u=settings.githubUser,r=settings.githubRepo,t=settings.githubToken;
-  if(!u||!r){toast('Set GitHub user & repo in Settings');return;}
-  toast('Syncing with GitHub…');
+
+async function pullFromSupabase(){
   try{
-    const url='https://api.github.com/repos/'+u+'/'+r+'/contents/ht_data.json';
-    const hd=t?{Authorization:'token '+t}:{};
-    const res=await fetch(url,{headers:hd});
-    if(res.ok){
-      const d=await res.json();
-      const data=JSON.parse(atob(d.content));
-      if(data.products)products=data.products;
-      if(data.settings)settings=data.settings;
-      if(data.stock)stockMap=data.stock;
-      if(data.orders)orders=data.orders;
-      SP();SS();SSK();SO();
-      if(t){
-        const payload=JSON.stringify({products:products,settings:settings,stock:stockMap,orders:orders,bills:bills},null,2);
-        const enc=btoa(unescape(encodeURIComponent(payload)));
-        await fetch(url,{method:'PUT',headers:Object.assign({},hd,{'Content-Type':'application/json'}),
-          body:JSON.stringify({message:'Sync',content:enc,sha:d.sha})});
-      }
-      renderBrands();renderOrders();renderDash();toast('✅ GitHub synced');
-    } else if(res.status===404&&t){
-      const payload=JSON.stringify({products:products,settings:settings,stock:stockMap,orders:orders,bills:bills},null,2);
-      const enc=btoa(unescape(encodeURIComponent(payload)));
-      await fetch(url,{method:'PUT',headers:Object.assign({},hd,{'Content-Type':'application/json'}),
-        body:JSON.stringify({message:'Init data',content:enc})});
-      toast('✅ Created ht_data.json on GitHub');
-    } else {
-      toast('GitHub error: '+res.status);
-    }
-  }catch(e){toast('Sync failed: '+e.message);}
-}
-async function syncGS(){
-  const url=settings.gsheetsUrl;
-  if(!url){toast('Set Apps Script URL in Settings');return;}
-  toast('Syncing with Sheets…');
-  try{
-    const r=await fetch(url+'?action=read');
-    if(r.ok){
-      const d=await r.json();
+    const r=await fetch(SB_URL+'/rest/v1/store_data?id=eq.main&select=data',{headers:sbH()});
+    if(!r.ok) return;
+    const rows=await r.json();
+    if(rows&&rows.length){
+      const d=rows[0].data||{};
       if(d.products)products=d.products;
+      if(d.settings)settings=d.settings;
       if(d.stock)stockMap=d.stock;
-      SP();SSK();
-      await fetch(url,{method:'POST',body:JSON.stringify({action:'write',products:products,stock:stockMap,orders:orders}),headers:{'Content-Type':'application/json'}});
-      renderBrands();toast('✅ Sheets synced');
-    } else toast('Sheets error: '+r.status);
-  }catch(e){toast('Sync failed: '+e.message);}
+      SP();SS();SSK();
+      // Pull orders from orders table
+      const or=await fetch(SB_URL+'/rest/v1/orders?select=id,data,status&order=created_at.desc',{headers:sbH()});
+      if(or.ok){
+        const orows=await or.json();
+        orders=orows.map(function(row){
+          const o=row.data||{};
+          o.id=row.id;
+          o.status=row.status||o.status||'new';
+          return o;
+        });
+        SO();
+      }
+    }
+  }catch(e){toast('⚠ Pull failed: '+e.message);}
 }
+
+async function pushToSupabase(){
+  try{
+    const payload={products:products,settings:settings,stock:stockMap,bills:bills};
+    // Upsert store_data
+    const r=await fetch(SB_URL+'/rest/v1/store_data',{
+      method:'POST',
+      headers:Object.assign({},sbH(),{'Prefer':'resolution=merge-duplicates,return=minimal'}),
+      body:JSON.stringify({id:'main',data:payload,updated_at:new Date().toISOString()})
+    });
+    if(!r.ok){const e=await r.text();toast('⚠ Supabase error: '+e.slice(0,80));}
+  }catch(e){toast('⚠ Push failed: '+e.message);}
+}
+
+// Called after every change that needs to sync
+function autoSync(){
+  pushToSupabase();
+}
+
 
 // ═══ PAGES ═══════════════════════════════════════════════════
 function showPg(n){
@@ -846,7 +885,7 @@ function qAdj(pid,vid,d){
 function qSet(pid,vid,val){
   const n=parseInt(val);
   setStk(pid,vid,isNaN(n)?0:n);
-  renderBrands();
+  renderBrands();autoSync();
 }
 
 // ═══ BRAND EDIT ══════════════════════════════════════════════
@@ -919,7 +958,7 @@ function saveBrand(){
     p.tierPricing.enabled=tierEnabled;
     if(bt.length) p.tierPricing.brandTiers=bt;
   }
-  SP();closeSheet();renderBrands();toast('✅ Brand saved');
+  SP();closeSheet();renderBrands();toast('✅ Brand saved');autoSync();
 }
 function deleteBrand(){
   if(!confirm('Delete brand and all its variants?')) return;
@@ -1079,7 +1118,7 @@ function saveVariant(){
     v.tierPricing={enabled:tierEnabled,variantTiers:vt};
     setStk(pid,vid,isNaN(stk)?-1:stk);
   }
-  SP();closeSheet();renderBrands();toast('✅ Saved');
+  SP();closeSheet();renderBrands();toast('✅ Saved');autoSync();
 }
 function deleteVariant(){
   if(!confirm('Delete this variant?')) return;
@@ -1417,7 +1456,7 @@ function confirmBill(){
     else if(billType==='restock') setStk(e.pid,e.vid,e.qty);
   });
   bills.push({id:'B'+Date.now(),ts:Date.now(),type:billType,items:items,total:total,profit:profit});
-  SB();
+  SB();autoSync();
   billCart={};
   closeSheet();
   updateBCS();
@@ -1428,32 +1467,75 @@ function confirmBill(){
   renderDash();
 }
 
+function billDelClick(el){deleteBill(el.getAttribute('data-bid'));}
+function billViewClick(el){viewDetail('bill',el.getAttribute('data-bid'));}
+function deleteBill(id){
+  if(!confirm('Delete this bill?')) return;
+  bills=bills.filter(function(b){return b.id!==id;});
+  SB();
+  renderDash();
+  if(billTabMode==='history') renderBillHistory();
+  toast('🗑 Bill deleted');
+}
+function clearAllBills(){
+  if(!confirm('Delete ALL bill history? This cannot be undone.')) return;
+  bills=[];
+  SB();
+  renderDash();renderBillHistory();
+  toast('🗑 All bills cleared');
+}
 function renderBillHistory(){
   if(!bills.length){document.getElementById('bill-history-area').innerHTML='<div class="es"><div class="em">🧾</div><p>No bills yet.</p></div>';return;}
-  let h='';
+  const area=document.getElementById('bill-history-area');
+  area.innerHTML='';
   const sorted=[...bills].reverse();
   sorted.forEach(function(b){
     const dt=new Date(b.ts).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
-    const prev=b.items.slice(0,3).map(function(i){return i.pn+' '+i.vl+' ×'+i.q;}).join(', ')+(b.items.length>3?' +'+( b.items.length-3)+' more':'');
-    h+='<div class="saved-bill" onclick="viewDetail(\'bill\',\''+b.id+'\')">'+
-      '<div class="sbh"><span class="'+(b.type==='sale'?'bts':'btr')+'">'+(b.type==='sale'?'📤 SALE':'📥 RESTOCK')+'</span>'+
-      '<span style="font-size:10px;color:var(--mu)">'+dt+'</span></div>'+
-      '<div style="display:flex;justify-content:space-between;align-items:center">'+
-        '<span style="font-size:15px;font-weight:900;color:var(--g);font-family:\'Playfair Display\',serif">₹'+b.total+'</span>'+
-        (b.type==='sale'&&b.profit?'<span style="font-size:12px;font-weight:700;color:#16a34a">+₹'+b.profit+' profit</span>':'')+
-      '</div>'+
-      '<div style="font-size:11px;color:var(--mu);margin-top:3px;line-height:1.6">'+prev+'</div>'+
-    '</div>';
+    const prev=b.items.slice(0,3).map(function(i){return i.pn+' '+i.vl+' x'+i.q;}).join(', ')+(b.items.length>3?' +'+(b.items.length-3)+' more':'');
+    const card=document.createElement('div');
+    card.className='saved-bill';
+    const row1=document.createElement('div');
+    row1.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:5px';
+    const typeBadge=document.createElement('span');
+    typeBadge.className=b.type==='sale'?'bts':'btr';
+    typeBadge.textContent=b.type==='sale'?'📤 SALE':'📥 RESTOCK';
+    const rightRow=document.createElement('div');
+    rightRow.style.cssText='display:flex;align-items:center;gap:7px';
+    const dtSpan=document.createElement('span');
+    dtSpan.style.cssText='font-size:10px;color:var(--mu)';
+    dtSpan.textContent=dt;
+    const delBtn=document.createElement('button');
+    delBtn.style.cssText='width:26px;height:26px;border:1.5px solid #fca5a5;border-radius:7px;background:#fff1f2;cursor:pointer;color:var(--rd);font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0';
+    delBtn.textContent='🗑';
+    delBtn.addEventListener('click',function(){deleteBill(b.id);});
+    rightRow.appendChild(dtSpan);
+    rightRow.appendChild(delBtn);
+    row1.appendChild(typeBadge);
+    row1.appendChild(rightRow);
+    const body=document.createElement('div');
+    body.style.cursor='pointer';
+    body.addEventListener('click',function(){viewDetail('bill',b.id);});
+    const totalRow=document.createElement('div');
+    totalRow.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:4px';
+    const totalSpan=document.createElement('span');
+    totalSpan.style.cssText='font-size:15px;font-weight:900;color:var(--g);font-family:Playfair Display,serif';
+    totalSpan.textContent='₹'+b.total;
+    totalRow.appendChild(totalSpan);
+    if(b.type==='sale'&&b.profit){
+      const profSpan=document.createElement('span');
+      profSpan.style.cssText='font-size:12px;font-weight:700;color:#16a34a';
+      profSpan.textContent='+₹'+b.profit+' profit';
+      totalRow.appendChild(profSpan);
+    }
+    const prevDiv=document.createElement('div');
+    prevDiv.style.cssText='font-size:11px;color:var(--mu);line-height:1.6';
+    prevDiv.textContent=prev;
+    body.appendChild(totalRow);
+    body.appendChild(prevDiv);
+    card.appendChild(row1);
+    card.appendChild(body);
+    area.appendChild(card);
   });
-  document.getElementById('bill-history-area').innerHTML=h;
-}
-
-// ═══ ORDERS ══════════════════════════════════════════════════
-function updateOrdBadge(){
-  const n=orders.filter(function(o){return o.status==='new';}).length;
-  document.getElementById('ordDot').classList.toggle('show',n>0);
-  const badge=document.getElementById('ordBadge');
-  if(badge){badge.style.display=n>0?'inline':'none';badge.textContent=n;}
 }
 function renderOrders(){
   const nw=orders.filter(function(o){return o.status==='new';});
@@ -1485,6 +1567,11 @@ function markDone(id){
   const o=orders.find(function(x){return x.id===id;});
   if(o) o.status='done';
   SO();renderOrders();updateOrdBadge();toast('✅ Marked done');
+  // Update status in Supabase orders table
+  fetch(SB_URL+'/rest/v1/orders?id=eq.'+id,{
+    method:'PATCH',headers:sbHMin(),
+    body:JSON.stringify({status:'done'})
+  }).catch(function(){});
 }
 function delOrder(id){
   if(!confirm('Delete order?')) return;
@@ -1562,10 +1649,6 @@ function renderSettings(){
   document.getElementById('cMOV').value=s.minOrderValue||500;
   document.getElementById('cGTPE').checked=!!(s.globalTierPricing&&s.globalTierPricing.enabled);
   selDS(s.dataSource||'local',true);
-  document.getElementById('ghUser').value=s.githubUser||'';
-  document.getElementById('ghRepo').value=s.githubRepo||'';
-  document.getElementById('ghToken').value=s.githubToken||'';
-  document.getElementById('gsURL').value=s.gsheetsUrl||'';
   renderGTiers();
 }
 function saveStoreSettings(){
@@ -1580,20 +1663,23 @@ function saveStoreSettings(){
     i++;
   }
   settings.globalTierPricing={enabled:en,tiers:tiers.length?tiers:[{minTotal:0,discount:0}]};
-  SS();toast('✅ Settings saved');
+  SS();autoSync();toast('✅ Settings saved');
 }
 function saveDataSource(){
-  settings.githubUser=document.getElementById('ghUser').value.trim();
-  settings.githubRepo=document.getElementById('ghRepo').value.trim();
-  settings.githubToken=document.getElementById('ghToken').value.trim();
-  settings.gsheetsUrl=document.getElementById('gsURL').value.trim();
   SS();updateSyncStatus();toast('✅ Data source saved');
+  if(settings.dataSource==='supabase'){
+    toast('⟳ Pushing data to Supabase…');
+    supaPushAll().then(function(ok){toast(ok?'✅ Supabase ready — tap ⟳ Sync anytime':'❌ Could not reach Supabase');});
+  }
 }
 function selDS(ds,silent){
   settings.dataSource=ds;
-  ['local','github','gsheets'].forEach(function(d){document.getElementById('ds-'+d).classList.toggle('sel',d===ds);});
-  document.getElementById('ds-github-cfg').style.display=ds==='github'?'block':'none';
-  document.getElementById('ds-gsheets-cfg').style.display=ds==='gsheets'?'block':'none';
+  ['local','supabase'].forEach(function(d){
+    const el=document.getElementById('ds-'+d);
+    if(el) el.classList.toggle('sel',d===ds);
+  });
+  const scfg=document.getElementById('ds-supabase-cfg');
+  if(scfg) scfg.style.display=ds==='supabase'?'block':'none';
   if(!silent){SS();updateSyncStatus();}
 }
 function renderGTiers(){
@@ -1653,10 +1739,23 @@ function closeSheet(){
 
 // ═══ BOOT ════════════════════════════════════════════════════
 loadAll();
+updateSyncStatus();
 renderDash();
 buildProdCats();
 buildBillCats();
 updateOrdBadge();
+// Pull latest data from Supabase on admin open
+pullFromSupabase().then(function(){
+  renderDash();
+  buildProdCats();
+  buildBillCats();
+  renderBrands();
+  updateOrdBadge();
+});
+// Auto-pull from Supabase on admin open if enabled
+if((settings.dataSource||'supabase')==='supabase'){
+  supaPullAll().then(function(){renderDash();renderBrands();updateOrdBadge();});
+}
 setInterval(function(){
   const fresh=JSON.parse(localStorage.getItem('ht_orders')||'[]');
   if(fresh.length!==orders.length){
