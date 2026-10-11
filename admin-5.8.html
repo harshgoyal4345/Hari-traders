@@ -945,7 +945,7 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--cr);color:var(-
   </div>
   <div class="frow3">
     <div><label class="fl">Sale Price ₹</label><input class="fi" id="eVprice" type="number" placeholder="50"/></div>
-    <div><label class="fl">Cost Price ₹</label><input class="fi" id="eVcost" type="number" placeholder="40"/></div>
+    <div><label class="fl">Cost Price ₹</label><input class="fi" id="eVcost" type="number"step="any" placeholder="40"/></div>
     <div><label class="fl">Stock (blank or -1 = ∞)</label><input class="fi" id="eVstock" type="number" placeholder="-1" title="Enter -1 or leave for infinite stock"/></div>
   </div>
   <div class="frow">
@@ -2927,7 +2927,7 @@ function renderBCItems(){
   groupOrder.forEach(gid=>{const grp=grouped[gid];h+='<div class="bc-brand-hdr">'+grp.label+'</div>';
     grp.items.forEach(item=>{const lt=Math.round(item.e.qty*item.e.price);grandTotal+=lt;
       const unitFactor=item.e.unitFactor||1;
-      grandCost+=Math.round((item.v.costPrice||0)*item.e.qty*unitFactor);
+      grandCost+=(parseFloat(item.v.costPrice)||0)*item.e.qty*unitFactor;
       const nameLine=useLocation?(item.p.name+' \u2014 '+item.v.label+(item.v.locBin?' <span style="color:var(--mu);font-weight:400">('+item.v.locBin+')</span>':'')):item.v.label+(item.v.category?' \u00b7 '+item.v.category:'');
       h+='<div class="bc-item-row"><div class="bc-item-left"><div class="bc-item-name">'+nameLine+(item.e.unitName?' \u00b7 <b>'+item.e.unitName+'</b>':'')+'</div></div>'+
         '<input class="bc-price-inp" type="number" value="'+item.e.price+'" id="bcp_'+item.k+'" oninput="bcPriceChange(\''+item.k+'\')">'+
@@ -2991,7 +2991,7 @@ function confirmBill(){
   keys.forEach(k=>{const e=billCart[k];const p=products.find(x=>x.id===e.pid),v=p&&p.variants.find(x=>x.vid===e.vid);if(!p||!v)return;
     const unitFactor=e.unitFactor||1;
     const baseQty=e.qty*unitFactor;
-    const lt=Math.round(e.qty*e.price),lc=Math.round((v.costPrice||0)*baseQty);
+    const lt=Math.round(e.qty*e.price),lc=(parseFloat(v.costPrice)||0)*baseQty;
     total+=lt;totalCost+=lc;
     const itm={pid:e.pid,vid:e.vid,pn:p.name,vl:v.label+(e.unitName?' ('+e.unitName+')':''),q:e.qty,pr:e.price,cost:v.costPrice||0,lt,profit:lt-lc,unitName:e.unitName||null,unitFactor,expiryDate:null,mfgDate:null};
     items.push(itm);
@@ -3005,7 +3005,7 @@ function confirmBill(){
   });
   const totalReceived=Math.max(0,(extraCharged?total+extra:total)-discount);
   const totalExpenses=totalCost+extra;
-  const profit=billType==='sale'?Math.round(totalReceived-totalExpenses):billType==='sale_return'?-Math.round(totalReceived):0;
+ const profit=billType==='sale'?Math.round((totalReceived-totalExpenses)*100)/100:billType==='sale_return'?-Math.round(totalReceived*100)/100:0;
   const billCust=billCustomerId?parties.find(p=>p.id===billCustomerId):null;
   // Use the chosen bill date if backdated, otherwise now
   let ts=Date.now();
@@ -3783,7 +3783,7 @@ function saveEditBill(){
     const e=editCart[k];
     const p=products.find(x=>x.id===e.pid),v=p&&p.variants.find(x=>x.vid===e.vid);
     const cost=v?(v.costPrice||0):0;
-    const lt=Math.round(e.qty*e.price),lc=Math.round(cost*e.qty);
+const lt=Math.round(e.qty*e.price),lc=(parseFloat(cost)||0)*e.qty;
     total+=lt;totalCost+=lc;
     items.push({pid:e.pid,vid:e.vid,pn:e.pn,vl:e.vl,q:e.qty,pr:e.price,cost,lt,profit:lt-lc,expiryDate:e.expiryDate||null,mfgDate:e.mfgDate||null});
     const delta=e.qty-e.origQty;
